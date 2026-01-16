@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin User System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{background:#eef2f5;font-family:Arial}
+.box{
+ max-width:420px;margin:20px auto;background:#fff;
+ padding:20px;border-radius:10px;
+ box-shadow:0 0 12px rgba(0,0,0,.15)
+}
+h2,h3{text-align:center}
+input,textarea,button{
+ width:100%;padding:10px;margin-top:10px
+}
+button{
+ background:#007bff;color:#fff;border:none;
+ border-radius:6px;cursor:pointer
+}
+.row{display:flex;gap:6px}
+.hide{display:none}
+.msg{
+ background:#f1f1f1;padding:10px;margin-top:10px;border-radius:6px
+}
+.copy{background:#28a745}
+input[readonly]{background:#f5f5f5}
+pre{white-space:pre-wrap}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="roleBox">
+ <h2>Select Login</h2>
+ <button onclick="openAdmin()">Admin Login</button>
+ <button onclick="openUser()">User Login</button>
+</div>
+
+<div class="box hide" id="adminLoginBox">
+ <h2>Admin Login</h2>
+ <input id="adminEmail" placeholder="Admin Email">
+ <input id="adminPass" type="password" placeholder="Password">
+ <button onclick="doAdminLogin()">Login</button>
+</div>
+
+<div class="box hide" id="userLoginBox">
+ <h2>User Login</h2>
+ <input id="userEmail" placeholder="Email">
+ <input id="userPass" type="password" placeholder="Password">
+ <button onclick="doUserLogin()">Login</button>
+</div>
+
+<div class="box hide" id="userPanel">
+ <h2>ID Generator</h2>
+
+ <input id="email" placeholder="Enter Email">
+ <input id="mobile" placeholder="Enter Mobile">
+
+ <button onclick="generate()">Generate</button>
+
+ <div class="row">
+  <input id="userid" readonly placeholder="User ID">
+  <button class="copy" onclick="copyVal('userid')">Copy</button>
+ </div>
+
+ <div class="row">
+  <input id="pass" readonly placeholder="Password">
+  <button class="copy" onclick="copyVal('pass')">Copy</button>
+ </div>
+
+ <div class="row">
+  <input id="phone" readonly placeholder="Mobile">
+  <button class="copy" onclick="copyVal('phone')">Copy</button>
+ </div>
+
+ <div class="row">
+  <input id="mailout" readonly placeholder="Email">
+  <button class="copy" onclick="copyVal('mailout')">Copy</button>
+ </div>
+
+ <button onclick="sendAdmin()">SEND TO ADMIN</button>
+</div>
+
+<div class="box hide" id="adminPanel">
+ <h3>User Messages</h3>
+ <div id="adminMsgs"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+ apiKey:"AIzaSyCTli8-1fuDNFAVdb9DNpmlLI0KalOEkGw",
+ authDomain:"idgenerator-cd866.firebaseapp.com",
+ databaseURL:"https://idgenerator-cd866-default-rtdb.firebaseio.com",
+ projectId:"idgenerator-cd866"
+});
+
+const auth=firebase.auth();
+const db=firebase.database();
+
+/* UI */
+function openAdmin(){ roleBox.classList.add("hide"); adminLoginBox.classList.remove("hide"); }
+function openUser(){ roleBox.classList.add("hide"); userLoginBox.classList.remove("hide"); }
+
+/* LOGIN */
+function doAdminLogin(){
+ auth.signInWithEmailAndPassword(adminEmail.value,adminPass.value)
+ .then(()=>{
+  adminLoginBox.classList.add("hide");
+  adminPanel.classList.remove("hide");
+  loadAdmin();
+ }).catch(e=>alert(e.message));
+}
+
+function doUserLogin(){
+ auth.signInWithEmailAndPassword(userEmail.value,userPass.value)
+ .then(()=>{
+  userLoginBox.classList.add("hide");
+  userPanel.classList.remove("hide");
+ }).catch(e=>alert(e.message));
+}
+
+/* GENERATE */
+function randomPass(){
+ const c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*!";
+ let p="";
+ for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)];
+ return p;
+}
+
+function generate(){
+ if(!email.value || !mobile.value) return alert("Email & Mobile required");
+
+ const id=email.value.split("@")[0].replace(/[^a-z]/gi,"").toLowerCase()
+          +Math.floor(100+Math.random()*900);
+
+ userid.value=id;
+ pass.value=randomPass();
+ phone.value=mobile.value;
+ mailout.value=email.value;
+}
+
+/* COPY */
+function copyVal(id){
+ const v=document.getElementById(id).value;
+ if(!v) return;
+ navigator.clipboard.writeText(v);
+}
+
+/* SEND */
+function sendAdmin(){
+ if(!userid.value || !pass.value || !phone.value || !mailout.value)
+  return alert("Generate first!");
+
+ const u=auth.currentUser;
+ if(!u) return alert("Login again");
+
+ db.ref("messages").push({
+  sender:u.email,
+  userid:userid.value,
+  password:pass.value,
+  mobile:phone.value,
+  email:mailout.value,
+  time:Date.now()
+ });
+
+ alert("Sent Successfully");
+}
+
+/* ADMIN */
+function loadAdmin(){
+ adminMsgs.innerHTML="";
+ db.ref("messages").on("child_added",s=>{
+  const d=s.val();
+
+  const view=
+`Sender: ${d.sender}
+-------------------------
+ID: ${d.userid}
+PASS: ${d.password}
+MOBILE: ${d.mobile}
+EMAIL: ${d.email}`;
+
+  const copy=
+`${d.userid}
+${d.password}
+${d.mobile}
+${d.email}`;
+
+  adminMsgs.innerHTML+=`
+   <div class="msg">
+    <pre>${view}</pre>
+    <button class="copy"
+     onclick="navigator.clipboard.writeText(\`${copy}\`)">
+     COPY
+    </button>
+   </div>`;
+ });
+}
+</script>
+</body>
+</html>
