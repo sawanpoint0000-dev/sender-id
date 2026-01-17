@@ -76,11 +76,12 @@ input[readonly]{background:#f5f5f5;cursor:not-allowed}
   <textarea id="final" readonly placeholder="Final Output"></textarea>
 </div>
 
-<!-- FIREBASE -->
+<!-- FIREBASE (ONLY COMPAT SDK – FINAL) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
+/* 🔥 FIREBASE CONFIG (NEW ONLY) */
 firebase.initializeApp({
   apiKey: "AIzaSyCTli8-1fuDNFAVdb9DNpmlLI0KalOEkGw",
   authDomain: "idgenerator-cd866.firebaseapp.com",
@@ -88,11 +89,12 @@ firebase.initializeApp({
   projectId: "idgenerator-cd866",
   storageBucket: "idgenerator-cd866.firebasestorage.app",
   messagingSenderId: "1062444577602",
-  appId: "1:1062444577602:web:6da63c0eb0b8479fd94edb"
+  appId: "1:1062444577602:web:e0a34219a06fa5acd94edb"
 });
+
 const db = firebase.database();
 
-/* 🔐 IRCTC VALID PASSWORD GENERATOR */
+/* 🔐 STRONG PASSWORD */
 function generateIRCTCPassword(){
   const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lower="abcdefghijklmnopqrstuvwxyz";
@@ -110,22 +112,26 @@ function generateIRCTCPassword(){
   while(pass.length < len){
     pass += all[Math.floor(Math.random()*all.length)];
   }
-
   return pass.split('').sort(()=>0.5-Math.random()).join('');
 }
 
-/* ⚡ GENERATE */
+/* ⚡ GENERATE DATA */
 function generate(){
-  const email = emailInput = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value.trim();
   const mobile = document.getElementById("mobile").value.trim();
-  if(!email || !mobile) return alert("Email & Mobile required");
+  if(!email || !mobile){
+    alert("Email & Mobile required");
+    return;
+  }
 
   const base = email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
   const letters="abcdefghijklmnopqrstuvwxyz";
-  const id = base + Math.floor(Math.random()*10)
-    + letters[Math.floor(Math.random()*26)]
-    + letters[Math.floor(Math.random()*26)]
-    + letters[Math.floor(Math.random()*26)];
+
+  const id = base +
+    Math.floor(Math.random()*10) +
+    letters[Math.floor(Math.random()*26)] +
+    letters[Math.floor(Math.random()*26)] +
+    letters[Math.floor(Math.random()*26)];
 
   const password = generateIRCTCPassword();
 
@@ -134,15 +140,18 @@ function generate(){
   phone.value = mobile;
   mailout.value = email;
 
-  /* FINAL OUTPUT (NO LABELS) */
   final.value = `${id}\n${password}\n${mobile}\n${email}`;
 
   db.ref("userActivity").push({
-    email,mobile,userid:id,password,time:Date.now()
+    email: email,
+    mobile: mobile,
+    userid: id,
+    password: password,
+    time: Date.now()
   });
 }
 
-/* COPY */
+/* 📋 COPY */
 function copyText(btn,id){
   navigator.clipboard.writeText(document.getElementById(id).value);
   btn.classList.add("copied");
