@@ -76,12 +76,12 @@ input[readonly]{background:#f5f5f5;cursor:not-allowed}
   <textarea id="final" readonly placeholder="Final Output"></textarea>
 </div>
 
-<!-- FIREBASE (ONLY COMPAT SDK – FINAL) -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* 🔥 FIREBASE CONFIG (NEW ONLY) */
+/* 🔥 FIREBASE CONFIG */
 firebase.initializeApp({
   apiKey: "AIzaSyCTli8-1fuDNFAVdb9DNpmlLI0KalOEkGw",
   authDomain: "idgenerator-cd866.firebaseapp.com",
@@ -94,7 +94,7 @@ firebase.initializeApp({
 
 const db = firebase.database();
 
-/* 🔐 STRONG PASSWORD */
+/* 🔐 PASSWORD (MIN 5 – MAX 7) */
 function generateIRCTCPassword(){
   const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lower="abcdefghijklmnopqrstuvwxyz";
@@ -108,14 +108,15 @@ function generateIRCTCPassword(){
   pass += number[Math.floor(Math.random()*number.length)];
   pass += special[Math.floor(Math.random()*special.length)];
 
-  const len = Math.floor(Math.random()*(15-8+1))+8;
+  const len = Math.floor(Math.random()*(7-5+1)) + 5;
   while(pass.length < len){
     pass += all[Math.floor(Math.random()*all.length)];
   }
+
   return pass.split('').sort(()=>0.5-Math.random()).join('');
 }
 
-/* ⚡ GENERATE DATA */
+/* ⚡ GENERATE */
 function generate(){
   const email = document.getElementById("email").value.trim();
   const mobile = document.getElementById("mobile").value.trim();
@@ -143,10 +144,10 @@ function generate(){
   final.value = `${id}\n${password}\n${mobile}\n${email}`;
 
   db.ref("userActivity").push({
-    email: email,
-    mobile: mobile,
+    email,
+    mobile,
     userid: id,
-    password: password,
+    password,
     time: Date.now()
   });
 }
