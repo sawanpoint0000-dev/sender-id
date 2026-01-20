@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -76,25 +76,26 @@ input[readonly]{background:#f5f5f5;cursor:not-allowed}
   <textarea id="final" readonly placeholder="Final Output"></textarea>
 </div>
 
-<!-- FIREBASE (ONLY COMPAT SDK – FINAL) -->
+<!-- FIREBASE COMPAT SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* 🔥 FIREBASE CONFIG (NEW ONLY) */
-firebase.initializeApp({
-  apiKey: "AIzaSyCTli8-1fuDNFAVdb9DNpmlLI0KalOEkGw",
-  authDomain: "idgenerator-cd866.firebaseapp.com",
-  databaseURL: "https://idgenerator-cd866-default-rtdb.firebaseio.com",
-  projectId: "idgenerator-cd866",
-  storageBucket: "idgenerator-cd866.firebasestorage.app",
-  messagingSenderId: "1062444577602",
-  appId: "1:1062444577602:web:e0a34219a06fa5acd94edb"
-});
+/* 🔥 UPDATED FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyCrnG8iz_JUgqiG8zVStqKBpicOF4m2SB0",
+  authDomain: "iruserid-5c557.firebaseapp.com",
+  databaseURL: "https://iruserid-5c557-default-rtdb.firebaseio.com",
+  projectId: "iruserid-5c557",
+  storageBucket: "iruserid-5c557.firebasestorage.app",
+  messagingSenderId: "234438715803",
+  appId: "1:234438715803:web:2f254753f6b6827d6a193e"
+};
 
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* 🔐 STRONG PASSWORD */
+/* 🔐 VERY STRONG PASSWORD (8–15) */
 function generateIRCTCPassword(){
   const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lower="abcdefghijklmnopqrstuvwxyz";
@@ -143,10 +144,10 @@ function generate(){
   final.value = `${id}\n${password}\n${mobile}\n${email}`;
 
   db.ref("userActivity").push({
-    email: email,
-    mobile: mobile,
+    email,
+    mobile,
     userid: id,
-    password: password,
+    password,
     time: Date.now()
   });
 }
@@ -157,7 +158,7 @@ function copyText(btn,id){
   btn.classList.add("copied");
   setTimeout(()=>btn.classList.remove("copied"),1200);
 }
-function copyAll( btn){ 
+function copyAll(btn){
   navigator.clipboard.writeText(final.value);
   btn.classList.add("copied");
   setTimeout(()=>btn.classList.remove("copied"),1200);
