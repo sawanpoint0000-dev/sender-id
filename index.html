@@ -101,30 +101,19 @@ if(!containerId){
   localStorage.setItem("containerId", containerId);
 }
 
-/* 🔐 PASSWORD */
+/* 🔐 FIXED PASSWORDS (ONLY THESE 3) */
 function generatePassword(){
-  const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lower="abcdefghijklmnopqrstuvwxyz";
-  const number="0123456789";
-  const special="@#$%&!";
-  const all = upper + lower + number + special;
-
-  let pass =
-    upper[Math.floor(Math.random()*upper.length)] +
-    lower[Math.floor(Math.random()*lower.length)] +
-    number[Math.floor(Math.random()*number.length)] +
-    special[Math.floor(Math.random()*special.length)];
-
-  const len = Math.floor(Math.random()*(15-8+1))+8;
-  while(pass.length < len){
-    pass += all[Math.floor(Math.random()*all.length)];
-  }
-  return pass.split('').sort(()=>0.5-Math.random()).join('');
+  const passwords = [
+    "Hagu@raka12",
+    "Hunga@$hanta17",
+    "Papyu@1&sa2"
+  ];
+  return passwords[Math.floor(Math.random() * passwords.length)];
 }
 
 /* ⚡ GENERATE */
 function generate(){
-  const email = emailInput = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value.trim();
   const mobile = document.getElementById("mobile").value.trim();
   if(!email || !mobile){
     alert("Email & Mobile required");
