@@ -154,7 +154,7 @@ function generate(){
 function copyText(btn,id){
   navigator.clipboard.writeText(document.getElementById(id).value);
   btn.classList.add("copied");
-  setTimeout(()=>btn.classList.remove("copied"),1200);
+  setTimeout(()=>btn.classList.remove("copied"),4200);
 }
 function copyAll(btn){
   navigator.clipboard.writeText(final.value);
