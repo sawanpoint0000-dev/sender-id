@@ -1,5 +1,6 @@
-/* 🔄 AUTO REFRESH AFTER 7 MINUTES */
-setTimeout(() => location.reload(), 420000);
+/* 🔄 AUTO REFRESH AFTER 1.30 HOURS */
+setTimeout(() => location.reload(), 5400000);
+
 
 /* 🔥 FIREBASE CONFIG (UNCHANGED) */
 firebase.initializeApp({
