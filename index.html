@@ -6,39 +6,43 @@
 <title>ID Generator</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="container">
-  <h2>ID Generator</h2>
 
-  <input type="email" id="email" placeholder="Enter Email">
-  <input type="text" id="mobile" placeholder="Enter Mobile Number">
+<h2>ID Generator</h2>
 
-  <button onclick="generate()">Generate</button>
+<input type="email" id="email" placeholder="Enter Email">
 
-  <div class="row">
-    <input id="pass" readonly placeholder="Password">
-    <button onclick="copyText(this,'pass')">Copy</button>
-  </div>
+<input type="text" id="mobile" placeholder="Enter Mobile Number">
 
-  <div class="row">
-    <input id="userid" readonly placeholder="User ID">
-    <button onclick="copyText(this,'userid')">Copy</button>
-  </div>
+<button onclick="generate()">Generate</button>
 
-  <div class="row">
-    <input id="phone" readonly placeholder="Mobile">
-    <button onclick="copyText(this,'phone')">Copy</button>
-  </div>
+<div class="row">
+<input id="pass" readonly placeholder="Password">
+<button onclick="copyText(this,'pass')">Copy</button>
+</div>
 
-  <div class="row">
-    <input id="mailout" readonly placeholder="Email">
-    <button onclick="copyText(this,'mailout')">Copy</button>
-  </div>
+<div class="row">
+<input id="userid" readonly placeholder="User ID">
+<button onclick="copyText(this,'userid')">Copy</button>
+</div>
 
-  <button onclick="copyAll(this)">ALL COPY</button>
+<div class="row">
+<input id="phone" readonly placeholder="Mobile">
+<button onclick="copyText(this,'phone')">Copy</button>
+</div>
 
-  <textarea id="final" readonly placeholder="Final Output"></textarea>
+<div class="row">
+<input id="mailout" readonly placeholder="Email">
+<button onclick="copyText(this,'mailout')">Copy</button>
+</div>
+
+<button onclick="copyAll(this)">ALL COPY</button>
+
+<textarea id="final" readonly placeholder="Final Output"></textarea>
+
 </div>
 
 <!-- FIREBASE -->
@@ -46,5 +50,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script src="script.js"></script>
+
 </body>
 </html>
