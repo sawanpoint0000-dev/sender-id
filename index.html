@@ -3,72 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ID Generator</title>
+<title>ID Generator + Temp Mail</title>
 
 <style>
-body{
-background:#eef2f5;
-font-family:Arial;
-display:flex;
-justify-content:center;
-padding:20px;
-}
-
-.container{
-background:#fff;
-width:420px;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,.2);
-}
-
-h2{text-align:center}
-
-input,textarea,button{
-width:100%;
-padding:10px;
-margin-top:10px;
-font-size:14px;
-}
-
-.row{
-display:flex;
-gap:6px;
-}
-
-button{
-background:#007bff;
-color:#fff;
-border:none;
-cursor:pointer;
-border-radius:6px;
-}
-
-button.copied{
-background:#28a745;
-}
-
-textarea{
-height:90px;
-resize:none;
-}
-
-input[readonly]{
-background:#f5f5f5;
-}
+body{background:#eef2f5;font-family:Arial,sans-serif;display:flex;justify-content:center;padding:20px;margin:0;}
+.container{background:#fff;width:100%;max-width:460px;padding:24px;border-radius:10px;box-shadow:0 0 12px rgba(0,0,0,.15);}
+h2,h3{text-align:center;margin-bottom:16px;}
+input,textarea,button{width:100%;padding:10px;margin-top:10px;font-size:14px;border:1px solid #ccc;border-radius:6px;}
+.row{display:flex;gap:6px;align-items:center;}
+button{background:#007bff;color:#fff;border:none;cursor:pointer;}
+button:hover{background:#0056b3;}
+button.copied{background:#28a745!important;}
+textarea{height:110px;resize:none;}
+input[readonly]{background:#f5f5f5;}
+#tempMailSection{margin-top:30px;padding-top:20px;border-top:1px solid #ddd;}
+#tempEmail{text-align:center;margin-top:10px;font-weight:bold}
+#otpBox{font-size:26px;text-align:center;padding:16px;background:#f8f9fa;border:2px dashed #007bff;border-radius:8px;margin:10px 0}
+#timer{text-align:center;font-size:22px;color:#dc3545}
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="container">
 
 <h2>ID Generator</h2>
 
-<input type="email" id="email" placeholder="Enter Email">
-<input type="text" id="mobile" placeholder="Enter Mobile Number">
+<input type="email" id="email" placeholder="Enter Email" readonly>
+<input type="text" id="mobile" placeholder="Enter Mobile">
 
-<button onclick="generate()">Generate</button>
+<button onclick="generateID()">Generate</button>
 
 <div class="row">
 <input id="pass" readonly placeholder="Password">
@@ -90,105 +54,123 @@ background:#f5f5f5;
 <button onclick="copyText(this,'mailout')">Copy</button>
 </div>
 
+<div class="row">
+<input id="emailpass" readonly placeholder="Email Password">
+<button onclick="copyText(this,'emailpass')">Copy</button>
+</div>
+
 <button onclick="copyAll(this)">ALL COPY</button>
 
-<textarea id="final" readonly placeholder="Final Output"></textarea>
+<textarea id="final" readonly></textarea>
+
+
+<div id="tempMailSection">
+
+<h3>Temp Mail + OTP</h3>
+
+<button onclick="generateTempEmail()" style="background:#17a2b8">
+Generate Temp Email
+</button>
+
+<div id="tempEmail"></div>
+
+<div id="timer">02:00</div>
+
+<div id="otpBox">Waiting for OTP...</div>
 
 </div>
+
+</div>
+
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCdWFYD2A2rOR9w-fHPxKM2UdSQ1Dsg9oY",
-  authDomain: "new5rt.firebaseapp.com",
-  projectId: "new5rt",
-  storageBucket: "new5rt.firebasestorage.app",
-  messagingSenderId: "660971215263",
-  appId: "1:660971215263:web:8864bf557f6c12138385aa",
-  databaseURL:"https://new5rt-default-rtdb.firebaseio.com"
+apiKey: "AIzaSyCdWFYD2A2rOR9w-fHPxKM2UdSQ1Dsg9oY",
+authDomain: "new5rt.firebaseapp.com",
+projectId: "new5rt",
+storageBucket: "new5rt.firebasestorage.app",
+messagingSenderId: "660971215263",
+appId: "1:660971215263:web:8864bf557f6c12138385aa",
+databaseURL:"https://new5rt-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* PASSWORD */
-function generatePassword(){
 
-const lower="abcdefghijklmnopqrstuvwxyz";
-const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const num="0123456789";
-const sp="@#$%!&*";
+// browser id
+let browserId = localStorage.getItem("browserId");
 
-const all=lower+upper+num+sp;
+if(!browserId){
 
-const len=Math.floor(Math.random()*5)+8;
+browserId="browser_"+Math.random().toString(36).slice(2,10);
 
-let p="";
-
-p+=lower[Math.floor(Math.random()*lower.length)];
-p+=upper[Math.floor(Math.random()*upper.length)];
-p+=num[Math.floor(Math.random()*num.length)];
-p+=sp[Math.floor(Math.random()*sp.length)];
-
-for(let i=p.length;i<len;i++){
-p+=all[Math.floor(Math.random()*all.length)];
-}
-
-return p.split("").sort(()=>Math.random()-0.5).join("");
+localStorage.setItem("browserId",browserId);
 
 }
 
-/* GENERATE */
-window.generate=function(){
 
-const email=document.getElementById("email").value.trim();
-const mobile=document.getElementById("mobile").value.trim();
+// strong password
+function generateStrongPassword(){
+
+const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
+
+let pass="";
+
+for(let i=0;i<10;i++){
+pass+=chars[Math.floor(Math.random()*chars.length)];
+}
+
+return pass;
+
+}
+
+
+// generate id
+window.generateID=function(){
+
+const email=document.getElementById("email").value;
+const mobile=document.getElementById("mobile").value;
 
 if(!email||!mobile){
 alert("Email & Mobile required");
 return;
 }
 
-const name=email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
+const name=email.split("@")[0];
 
-const digits=Math.floor(10+Math.random()*90);
+const userId=name+Math.floor(10+Math.random()*90);
 
-const letters="abcdefghijklmnopqrstuvwxyz";
+const password=generateStrongPassword();
 
-const userId=name+digits+
-letters[Math.floor(Math.random()*26)]+
-letters[Math.floor(Math.random()*26)];
-
-const password=generatePassword();
-
-/* OUTPUT */
 document.getElementById("pass").value=password;
 document.getElementById("userid").value=userId;
 document.getElementById("phone").value=mobile;
 document.getElementById("mailout").value=email;
 
-document.getElementById("final").value=
-`${userId}
-${password}
-${mobile}
-${email}`;
-
-/* SAVE DATABASE */
-push(ref(db,"users"),{
-email:email,
-mobile:mobile,
-userid:userId,
-password:password,
-time:Date.now()
-});
+updateFinal();
 
 }
 
-/* COPY */
+
+// final text
+function updateFinal(){
+
+document.getElementById("final").value=
+document.getElementById("userid").value+"\n"+
+document.getElementById("pass").value+"\n"+
+document.getElementById("phone").value+"\n"+
+document.getElementById("mailout").value+"\n"+
+document.getElementById("emailpass").value;
+
+}
+
+
+// copy
 window.copyText=function(btn,id){
 
 navigator.clipboard.writeText(
@@ -197,12 +179,12 @@ document.getElementById(id).value
 
 btn.classList.add("copied");
 
-setTimeout(()=>{
-btn.classList.remove("copied");
-},2000);
+setTimeout(()=>btn.classList.remove("copied"),2000);
 
 }
 
+
+// copy all
 window.copyAll=function(btn){
 
 navigator.clipboard.writeText(
@@ -211,9 +193,161 @@ document.getElementById("final").value
 
 btn.classList.add("copied");
 
-setTimeout(()=>{
-btn.classList.remove("copied");
-},2000);
+setTimeout(()=>btn.classList.remove("copied"),2000);
+
+saveToFirebase();
+
+}
+
+
+// firebase save
+async function saveToFirebase(){
+
+const userid=document.getElementById("userid").value;
+
+if(!userid) return;
+
+const countRef = ref(db,"users/"+browserId+"/count");
+
+const snapshot = await get(countRef);
+
+let count = 1;
+
+if(snapshot.exists()){
+count = snapshot.val()+1;
+}
+
+await set(
+ref(db,"users/"+browserId+"/data/"+count),
+{
+userid:document.getElementById("userid").value,
+password:document.getElementById("pass").value,
+mobile:document.getElementById("phone").value,
+email:document.getElementById("mailout").value,
+emailpass:document.getElementById("emailpass").value,
+time:Date.now()
+}
+);
+
+await set(countRef,count);
+
+}
+
+
+// TEMP MAIL
+let token;
+let inboxInterval;
+let seconds=120;
+
+
+// timer
+function startTimer(){
+
+seconds=120;
+
+const timer=setInterval(()=>{
+
+seconds--;
+
+let m=Math.floor(seconds/60);
+let s=seconds%60;
+
+document.getElementById("timer").innerText=
+String(m).padStart(2,"0")+":"+
+String(s).padStart(2,"0");
+
+if(seconds<=0){
+
+clearInterval(timer);
+
+document.getElementById("otpBox").innerText="OTP expired";
+
+}
+
+},1000);
+
+}
+
+
+// check inbox
+async function checkInbox(){
+
+if(!token) return;
+
+const res=await fetch("https://api.mail.tm/messages",{
+headers:{Authorization:"Bearer "+token}
+});
+
+const data=await res.json();
+
+if(data["hydra:member"].length){
+
+const id=data["hydra:member"][0].id;
+
+const msg=await fetch(
+"https://api.mail.tm/messages/"+id,
+{headers:{Authorization:"Bearer "+token}}
+);
+
+const msgData=await msg.json();
+
+const text=msgData.text||"";
+
+const otp=text.match(/\d{4,8}/);
+
+if(otp){
+
+document.getElementById("otpBox").innerText=otp[0];
+
+clearInterval(inboxInterval);
+
+}
+
+}
+
+}
+
+
+// generate temp email
+window.generateTempEmail=async function(){
+
+const domRes=await fetch("https://api.mail.tm/domains");
+
+const domData=await domRes.json();
+
+const domain=domData["hydra:member"][0].domain;
+
+const email="user"+Math.floor(Math.random()*9999)+"@"+domain;
+
+const pass="Pass"+Math.floor(Math.random()*9999);
+
+document.getElementById("emailpass").value=pass;
+
+await fetch("https://api.mail.tm/accounts",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({address:email,password:pass})
+});
+
+const tokenRes=await fetch("https://api.mail.tm/token",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({address:email,password:pass})
+});
+
+const tokenData=await tokenRes.json();
+
+token=tokenData.token;
+
+document.getElementById("email").value=email;
+document.getElementById("mailout").value=email;
+document.getElementById("tempEmail").innerText=email;
+
+document.getElementById("otpBox").innerText="Waiting for OTP...";
+
+startTimer();
+
+inboxInterval=setInterval(checkInbox,5000);
 
 }
 
