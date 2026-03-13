@@ -4,7 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ID Generator</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+  background:#eef2f5;
+  font-family:Arial, sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
+
+.container{
+  background:#fff;
+  width:100%;
+  max-width:420px;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 0 12px rgba(0,0,0,.15);
+}
+
+h2{text-align:center}
+
+input, textarea, button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  font-size:14px;
+}
+
+.row{
+  display:flex;
+  gap:6px
+}
+
+button{
+  background:#007bff;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  border-radius:6px
+}
+
+button.copied{
+  background:#28a745
+}
+
+textarea{
+  height:100px;
+  resize:none
+}
+
+input[readonly]{
+  background:#f5f5f5
+}
+</style>
 </head>
 
 <body>
@@ -14,7 +67,6 @@
 <h2>ID Generator</h2>
 
 <input type="email" id="email" placeholder="Enter Email">
-
 <input type="text" id="mobile" placeholder="Enter Mobile Number">
 
 <button onclick="generate()">Generate</button>
@@ -49,7 +101,131 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<script src="script.js"></script>
+<script>
+
+/* AUTO REFRESH */
+setTimeout(()=>location.reload(),5400000);
+
+/* FIREBASE INIT */
+const firebaseConfig={
+apiKey:"AIzaSyCrnG8iz_JUgqiG8zVStqKBpicOF4m2SB0",
+authDomain:"iruserid-5c557.firebaseapp.com",
+databaseURL:"https://iruserid-5c557-default-rtdb.firebaseio.com",
+projectId:"iruserid-5c557",
+storageBucket:"iruserid-5c557.firebasestorage.app",
+messagingSenderId:"234438715803",
+appId:"1:234438715803:web:2f254753f6b6827d6a193e"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db=firebase.database();
+
+/* PASSWORD GENERATOR */
+function generatePassword(){
+
+const lower="abcdefghijklmnopqrstuvwxyz";
+const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const num="0123456789";
+const sp="@#$%!&*";
+
+const all=lower+upper+num+sp;
+
+const len=Math.floor(Math.random()*5)+8;
+
+let p="";
+
+p+=lower[Math.floor(Math.random()*lower.length)];
+p+=upper[Math.floor(Math.random()*upper.length)];
+p+=num[Math.floor(Math.random()*num.length)];
+p+=sp[Math.floor(Math.random()*sp.length)];
+
+for(let i=p.length;i<len;i++){
+p+=all[Math.floor(Math.random()*all.length)];
+}
+
+return p.split("").sort(()=>Math.random()-0.5).join("");
+
+}
+
+/* GENERATE */
+function generate(){
+
+const email=document.getElementById("email").value.trim();
+const mobile=document.getElementById("mobile").value.trim();
+
+if(!email||!mobile){
+alert("Email & Mobile required");
+return;
+}
+
+const name=email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
+
+const digits=Math.floor(10+Math.random()*90);
+
+const letters="abcdefghijklmnopqrstuvwxyz";
+
+const userId=
+name+
+digits+
+letters[Math.floor(Math.random()*26)]+
+letters[Math.floor(Math.random()*26)];
+
+const password=generatePassword();
+
+/* OUTPUT */
+document.getElementById("pass").value=password;
+document.getElementById("userid").value=userId;
+document.getElementById("phone").value=mobile;
+document.getElementById("mailout").value=email;
+
+document.getElementById("final").value=
+`${userId}
+${password}
+${mobile}
+${email}`;
+
+/* SAVE FIREBASE */
+db.ref("users").push({
+email:email,
+mobile:mobile,
+userid:userId,
+password:password,
+time:Date.now()
+});
+
+}
+
+/* COPY */
+function copyText(btn,id){
+
+navigator.clipboard.writeText(
+document.getElementById(id).value
+);
+
+btn.classList.add("copied");
+
+setTimeout(()=>{
+btn.classList.remove("copied");
+},2000);
+
+}
+
+function copyAll(btn){
+
+navigator.clipboard.writeText(
+document.getElementById("final").value
+);
+
+btn.classList.add("copied");
+
+setTimeout(()=>{
+btn.classList.remove("copied");
+},2000);
+
+}
+
+</script>
 
 </body>
 </html>
