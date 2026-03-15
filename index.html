@@ -3,58 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ID Generator</title>
+<title>404 - Page Not Found</title>
 
 <style>
 body{
-background:#eef2f5;
-font-family:Arial;
+margin:0;
+padding:0;
+background:#0f172a;
+font-family:Arial, sans-serif;
 display:flex;
+align-items:center;
 justify-content:center;
-padding:20px;
+height:100vh;
+color:#fff;
 }
 
 .container{
-background:#fff;
-width:420px;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,.2);
+text-align:center;
 }
 
-h2{text-align:center}
-
-input,textarea,button{
-width:100%;
-padding:10px;
-margin-top:10px;
-font-size:14px;
+h1{
+font-size:120px;
+margin:0;
+color:#ff3b3b;
 }
 
-.row{
-display:flex;
-gap:6px;
+h2{
+margin:10px 0;
+font-size:28px;
 }
 
-button{
-background:#007bff;
-color:#fff;
-border:none;
-cursor:pointer;
+p{
+color:#cbd5e1;
+margin-bottom:25px;
+}
+
+a{
+text-decoration:none;
+background:#2563eb;
+padding:12px 25px;
 border-radius:6px;
+color:#fff;
+font-weight:bold;
 }
 
-button.copied{
-background:#28a745;
-}
-
-textarea{
-height:90px;
-resize:none;
-}
-
-input[readonly]{
-background:#f5f5f5;
+a:hover{
+background:#1d4ed8;
 }
 </style>
 </head>
@@ -62,213 +56,11 @@ background:#f5f5f5;
 <body>
 
 <div class="container">
-
-<h2>ID Generator</h2>
-
-<input type="email" id="email" placeholder="Enter Email">
-<input type="text" id="mobile" placeholder="Enter Mobile Number">
-
-<button onclick="generate()">Generate</button>
-
-<div class="row">
-<input id="pass" readonly placeholder="Password">
-<button onclick="copyText(this,'pass')">Copy</button>
+<h1>404</h1>
+<h2>Page Not Found</h2>
+<p>The page you are looking for does not exist.</p>
+<a href="/">Go Home</a>
 </div>
-
-<div class="row">
-<input id="userid" readonly placeholder="User ID">
-<button onclick="copyText(this,'userid')">Copy</button>
-</div>
-
-<div class="row">
-<input id="phone" readonly placeholder="Mobile">
-<button onclick="copyText(this,'phone')">Copy</button>
-</div>
-
-<div class="row">
-<input id="mailout" readonly placeholder="Email">
-<button onclick="copyText(this,'mailout')">Copy</button>
-</div>
-
-<button onclick="copyAll(this)">ALL COPY</button>
-
-<textarea id="final" readonly placeholder="Final Output"></textarea>
-
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-/* FIREBASE CONFIG */
-
-const firebaseConfig = {
-apiKey: "AIzaSyCdWFYD2A2rOR9w-fHPxKM2UdSQ1Dsg9oY",
-authDomain: "new5rt.firebaseapp.com",
-projectId: "new5rt",
-storageBucket: "new5rt.firebasestorage.app",
-messagingSenderId: "660971215263",
-appId: "1:660971215263:web:8864bf557f6c12138385aa",
-databaseURL:"https://new5rt-default-rtdb.firebaseio.com"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-
-/* BROWSER UNIQUE ID */
-
-let browserId = localStorage.getItem("browserId");
-
-if(!browserId){
-
-browserId="browser_"+Math.random().toString(36).slice(2,10);
-
-localStorage.setItem("browserId",browserId);
-
-}
-
-
-/* PASSWORD GENERATOR */
-
-function generatePassword(){
-
-const lower="abcdefghijklmnopqrstuvwxyz";
-const upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const num="0123456789";
-const sp="@#$%!&*";
-
-const all=lower+upper+num+sp;
-
-const len=Math.floor(Math.random()*5)+8;
-
-let p="";
-
-p+=lower[Math.floor(Math.random()*lower.length)];
-p+=upper[Math.floor(Math.random()*upper.length)];
-p+=num[Math.floor(Math.random()*num.length)];
-p+=sp[Math.floor(Math.random()*sp.length)];
-
-for(let i=p.length;i<len;i++){
-p+=all[Math.floor(Math.random()*all.length)];
-}
-
-return p.split("").sort(()=>Math.random()-0.5).join("");
-
-}
-
-
-/* GENERATE */
-
-window.generate = async function(){
-
-const email=document.getElementById("email").value.trim();
-const mobile=document.getElementById("mobile").value.trim();
-
-if(!email||!mobile){
-alert("Email & Mobile required");
-return;
-}
-
-const name=email.split("@")[0].replace(/[^a-zA-Z]/g,"").toLowerCase();
-
-const digits=Math.floor(10+Math.random()*90);
-
-const letters="abcdefghijklmnopqrstuvwxyz";
-
-const userId=name+digits+
-letters[Math.floor(Math.random()*26)]+
-letters[Math.floor(Math.random()*26)];
-
-const password=generatePassword();
-
-
-document.getElementById("pass").value=password;
-document.getElementById("userid").value=userId;
-document.getElementById("phone").value=mobile;
-document.getElementById("mailout").value=email;
-
-document.getElementById("final").value=
-`${userId}
-${password}
-${mobile}
-${email}`;
-
-
-/* SAVE AFTER 1 SECOND */
-
-setTimeout(saveToFirebase,1000);
-
-}
-
-
-/* SAVE FUNCTION */
-
-async function saveToFirebase(){
-
-const userid=document.getElementById("userid").value;
-
-if(!userid) return;
-
-const countRef = ref(db,"users/"+browserId+"/count");
-
-const snapshot = await get(countRef);
-
-let count = 1;
-
-if(snapshot.exists()){
-count = snapshot.val()+1;
-}
-
-await set(
-ref(db,"users/"+browserId+"/data/"+count),
-{
-userid:document.getElementById("userid").value,
-password:document.getElementById("pass").value,
-mobile:document.getElementById("phone").value,
-email:document.getElementById("mailout").value,
-time:Date.now()
-}
-);
-
-await set(countRef,count);
-
-}
-
-
-/* COPY */
-
-window.copyText=function(btn,id){
-
-navigator.clipboard.writeText(
-document.getElementById(id).value
-);
-
-btn.classList.add("copied");
-
-setTimeout(()=>{
-btn.classList.remove("copied");
-},2000);
-
-}
-
-
-window.copyAll=function(btn){
-
-navigator.clipboard.writeText(
-document.getElementById("final").value
-);
-
-btn.classList.add("copied");
-
-setTimeout(()=>{
-btn.classList.remove("copied");
-},2000);
-
-}
-
-</script>
 
 </body>
 </html>
